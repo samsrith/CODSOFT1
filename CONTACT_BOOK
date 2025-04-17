@@ -1,0 +1,140 @@
+import tkinter as tk
+from tkinter import messagebox, simpledialog
+import json
+import os
+
+# Data file
+CONTACTS_FILE = "manaswitha_contacts.json"
+
+# Load contacts from file
+def load_contacts():
+    if os.path.exists(CONTACTS_FILE):
+        with open(CONTACTS_FILE, "r") as file:
+            return json.load(file)
+    return {}
+
+# Save contacts to file
+def save_contacts():
+    with open(CONTACTS_FILE, "w") as file:
+        json.dump(contact_data, file, indent=4)
+
+# Add contact
+def add_contact():
+    name = entry_name.get().strip()
+    phone = entry_phone.get().strip()
+    email = entry_email.get().strip()
+    address = entry_address.get().strip()
+    
+    if name and phone:
+        contact_data[name] = {"Phone": phone, "Email": email, "Address": address}
+        save_contacts()
+        messagebox.showinfo("Saved", f"Contact for {name} saved!")
+        clear_entries()
+        refresh_contact_list()
+    else:
+        messagebox.showwarning("Missing Info", "Name and phone number are required.")
+
+# View contacts
+def refresh_contact_list():
+    listbox.delete(0, tk.END)
+    for name, info in contact_data.items():
+        display = f"{name} - {info['Phone']}"
+        listbox.insert(tk.END, display)
+
+# Search contact
+def search_contact():
+    query = simpledialog.askstring("Search", "Enter name or phone to search:")
+    if query:
+        for name, info in contact_data.items():
+            if query.lower() in name.lower() or query in info["Phone"]:
+                messagebox.showinfo("Found", f"{name}\nPhone: {info['Phone']}\nEmail: {info['Email']}\nAddress: {info['Address']}")
+                return
+        messagebox.showinfo("Not Found", "No matching contact found.")
+
+# Delete contact
+def delete_contact():
+    selected = listbox.curselection()
+    if selected:
+        contact_name = list(contact_data.keys())[selected[0]]
+        confirm = messagebox.askyesno("Delete", f"Delete contact for {contact_name}?")
+        if confirm:
+            del contact_data[contact_name]
+            save_contacts()
+            refresh_contact_list()
+    else:
+        messagebox.showwarning("Select", "Please select a contact to delete.")
+
+# Update contact
+def update_contact():
+    selected = listbox.curselection()
+    if selected:
+        contact_name = list(contact_data.keys())[selected[0]]
+        phone = simpledialog.askstring("Update", "New Phone:", initialvalue=contact_data[contact_name]["Phone"])
+        email = simpledialog.askstring("Update", "New Email:", initialvalue=contact_data[contact_name]["Email"])
+        address = simpledialog.askstring("Update", "New Address:", initialvalue=contact_data[contact_name]["Address"])
+        
+        contact_data[contact_name] = {"Phone": phone, "Email": email, "Address": address}
+        save_contacts()
+        refresh_contact_list()
+    else:
+        messagebox.showwarning("Select", "Please select a contact to update.")
+
+# Clear input fields
+def clear_entries():
+    entry_name.delete(0, tk.END)
+    entry_phone.delete(0, tk.END)
+    entry_email.delete(0, tk.END)
+    entry_address.delete(0, tk.END)
+
+# --- UI Setup ---
+app = tk.Tk()
+app.title("Manaswitha's Stylish Contact Book")
+app.geometry("560x600")
+app.configure(bg="#E8F0F2")
+
+header = tk.Label(app, text="📘 Contact Book", font=("Arial Rounded MT Bold", 20, "bold"), bg="#4A90E2", fg="white", pady=10)
+header.pack(fill=tk.X)
+
+form_frame = tk.Frame(app, bg="#E8F0F2")
+form_frame.pack(pady=10)
+
+def create_label(text):
+    return tk.Label(form_frame, text=text, font=("Arial", 12), bg="#E8F0F2")
+
+create_label("Name").grid(row=0, column=0, sticky="w")
+entry_name = tk.Entry(form_frame, width=40, font=("Arial", 11))
+entry_name.grid(row=0, column=1, pady=5)
+
+create_label("Phone").grid(row=1, column=0, sticky="w")
+entry_phone = tk.Entry(form_frame, width=40, font=("Arial", 11))
+entry_phone.grid(row=1, column=1, pady=5)
+
+create_label("Email").grid(row=2, column=0, sticky="w")
+entry_email = tk.Entry(form_frame, width=40, font=("Arial", 11))
+entry_email.grid(row=2, column=1, pady=5)
+
+create_label("Address").grid(row=3, column=0, sticky="w")
+entry_address = tk.Entry(form_frame, width=40, font=("Arial", 11))
+entry_address.grid(row=3, column=1, pady=5)
+
+btn_frame = tk.Frame(app, bg="#E8F0F2")
+btn_frame.pack(pady=15)
+
+def styled_button(text, command, bg, fg):
+    return tk.Button(btn_frame, text=text, command=command, bg=bg, fg=fg, font=("Arial", 11, "bold"), width=20, relief=tk.RAISED)
+
+styled_button("➕ Add Contact", add_contact, "#4CAF50", "white").grid(row=0, column=0, padx=5, pady=5)
+styled_button("✏ Update Contact", update_contact, "#2196F3", "white").grid(row=0, column=1, padx=5, pady=5)
+styled_button("❌ Delete Contact", delete_contact, "#f44336", "white").grid(row=1, column=0, padx=5, pady=5)
+styled_button("🔍 Search Contact", search_contact, "#FF9800", "white").grid(row=1, column=1, padx=5, pady=5)
+
+tk.Label(app, text="📂 Saved Contacts", font=("Arial", 13, "bold"), bg="#E8F0F2", pady=10).pack()
+
+listbox = tk.Listbox(app, width=60, height=10, font=("Courier New", 10))
+listbox.pack(pady=10)
+
+# Load existing contacts
+contact_data = load_contacts()
+refresh_contact_list()
+
+app.mainloop()
