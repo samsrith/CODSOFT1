@@ -4,7 +4,7 @@ import json
 import os
 
 # Data file
-CONTACTS_FILE = "manaswitha_contacts.json"
+CONTACTS_FILE = "samsrith_contacts.json"
 
 # Load contacts from file
 def load_contacts():
@@ -88,7 +88,7 @@ def clear_entries():
 
 # --- UI Setup ---
 app = tk.Tk()
-app.title("Manaswitha's Stylish Contact Book")
+app.title("Sam's Stylish Contact Book")
 app.geometry("560x600")
 app.configure(bg="#E8F0F2")
 
@@ -124,7 +124,7 @@ def styled_button(text, command, bg, fg):
     return tk.Button(btn_frame, text=text, command=command, bg=bg, fg=fg, font=("Arial", 11, "bold"), width=20, relief=tk.RAISED)
 
 styled_button("➕ Add Contact", add_contact, "#4CAF50", "white").grid(row=0, column=0, padx=5, pady=5)
-styled_button("✏ Update Contact", update_contact, "#2196F3", "white").grid(row=0, column=1, padx=5, pady=5)
+styled_button("✏️ Update Contact", update_contact, "#2196F3", "white").grid(row=0, column=1, padx=5, pady=5)
 styled_button("❌ Delete Contact", delete_contact, "#f44336", "white").grid(row=1, column=0, padx=5, pady=5)
 styled_button("🔍 Search Contact", search_contact, "#FF9800", "white").grid(row=1, column=1, padx=5, pady=5)
 
@@ -138,3 +138,4 @@ contact_data = load_contacts()
 refresh_contact_list()
 
 app.mainloop()
+
